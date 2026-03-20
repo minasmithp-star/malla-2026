@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <!-- Background -->
+  <rect width="192" height="192" rx="38" fill="#f5f0e8"/>
+
+  <!-- Central hexagon -->
+  <polygon points="96,34 140,59 140,109 96,134 52,109 52,59"
+    fill="#c8dff5" stroke="#8fbde0" stroke-width="2.5"/>
+
+  <!-- Inner hexagon -->
+  <polygon points="96,52 126,69 126,103 96,120 66,103 66,69"
+    fill="none" stroke="#7a9fc0" stroke-width="2" opacity="0.6"/>
+
+  <!-- Molecule bonds — 3 lines from center outward -->
+  <line x1="96" y1="84" x2="96" y2="34" stroke="#7a9fc0" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+  <line x1="96" y1="84" x2="140" y2="109" stroke="#7a9fc0" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+  <line x1="96" y1="84" x2="52" y2="109" stroke="#7a9fc0" stroke-width="2" stroke-linecap="round" opacity="0.4"/>
+
+  <!-- Center dot -->
+  <circle cx="96" cy="84" r="6" fill="#7a9fc0"/>
+
+  <!-- Corner atom dots -->
+  <circle cx="96" cy="34" r="5" fill="#90b890"/>
+  <circle cx="140" cy="109" r="5" fill="#90b890"/>
+  <circle cx="52" cy="109" r="5" fill="#90b890"/>
+
+  <!-- Lettering: QF -->
+  <text x="96" y="162" text-anchor="middle"
+    font-family="Georgia, serif" font-size="26" font-weight="700"
+    letter-spacing="3" fill="#2d2a24" opacity="0.75">QF</text>
+</svg>
