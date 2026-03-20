@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Malla Curricular — Químico Farmacéutico PE2015</title>
+<meta name="theme-color" content="#f5f0e8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Malla QF">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --bg-card: #faf7f2;
+    --hemi-bg: #f0ebe0;
+    --border: #e0d8cc;
+    --text: #2d2a24;
+    --text-muted: #8a8070;
+    --text-light: #b0a898;
+
+    --unlocked: #c8dff5;
+    --unlocked-border: #8fbde0;
+    --unlocked-text: #1a4a70;
+    --unlocked-hover: #b0d0ef;
+
+    --approved: #c8e8c8;
+    --approved-border: #7aba7a;
+    --approved-text: #1a4a1a;
+    --approved-hover: #b0dbb0;
+
+    --blocked: #e0ddd8;
+    --blocked-border: #c0bbb4;
+    --blocked-text: #706860;
+
+    --planned: #f0dfc8;
+    --planned-border: #d0a870;
+    --planned-text: #6a4010;
+
+    --prereq-highlight: #f5c8c8;
+    --prereq-border: #d47070;
+    --dependent-highlight: #c8dff5;
+    --dependent-border: #6aaad4;
+    --dim: 0.25;
+
+    --accent: #7a9fc0;
+    --accent2: #90b890;
+    --hex: #c8b880;
+
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+    --transition: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 13px;
+  }
+
+  /* ── TOP BAR ── */
+  #topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    box-shadow: var(--shadow);
+  }
+
+  #topbar h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 16px;
+    color: var(--text);
+    flex-shrink: 0;
+    letter-spacing: -0.3px;
+  }
+
+  #topbar h1 span {
+    color: var(--accent);
+  }
+
+  .topbar-sep { flex: 1; }
+
+  .top-btn {
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+  }
+  .top-btn { transition: background 0.3s cubic-bezier(0.25,0.46,0.45,0.94), border-color 0.3s cubic-bezier(0.25,0.46,0.45,0.94), color 0.3s cubic-bezier(0.25,0.46,0.45,0.94); }
+  .top-btn:hover { background: var(--hemi-bg); border-color: var(--accent); }
+  .top-btn.danger:hover { background: #fde8e8; border-color: #d08080; color: #8a2020; }
+
+  /* search */
+  #search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  #search-input {
+    padding: 6px 12px 6px 30px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    width: 200px;
+    transition: var(--transition);
+    color: var(--text);
+  }
+  #search-input:focus { outline: none; border-color: var(--accent); width: 260px; }
+  #search-input { transition: width 0.4s cubic-bezier(0.25,0.46,0.45,0.94), border-color 0.3s cubic-bezier(0.25,0.46,0.45,0.94); }
+  #search-icon {
+    position: absolute; left: 8px;
+    color: var(--text-muted); font-size: 14px; pointer-events: none;
+  }
+  #search-results {
+    position: absolute; top: 100%; left: 0; width: 320px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); box-shadow: var(--shadow-lg);
+    max-height: 300px; overflow-y: auto; z-index: 200;
+    display: none;
+  }
+  #search-results.open { display: block; animation: fadeSlideDown 0.22s cubic-bezier(0.4,0,0.2,1); }
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .search-item {
+    padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border);
+    transition: var(--transition);
+  }
+  .search-item:last-child { border-bottom: none; }
+  .search-item:hover { background: var(--hemi-bg); }
+  .search-item-name { font-weight: 500; font-size: 12px; }
+  .search-item-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .search-item-state { display: inline-block; padding: 1px 6px; border-radius: 20px; font-size: 10px; font-weight: 600; margin-left: 4px; }
+  .state-approved { background: var(--approved); color: var(--approved-text); }
+  .state-unlocked { background: var(--unlocked); color: var(--unlocked-text); }
+  .state-blocked { background: var(--blocked); color: var(--blocked-text); }
+  .state-planned { background: var(--planned); color: var(--planned-text); }
+
+  /* filter chips */
+  #filter-bar {
+    display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+  }
+  .filter-chip {
+    padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border);
+    background: var(--bg); font-size: 11px; font-weight: 500; cursor: pointer;
+    transition: background 0.38s cubic-bezier(0.25,0.46,0.45,0.94), border-color 0.38s cubic-bezier(0.25,0.46,0.45,0.94), color 0.38s cubic-bezier(0.25,0.46,0.45,0.94);
+    color: var(--text-muted);
+  }
+  .filter-chip.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .filter-chip:hover:not(.active) { border-color: var(--accent); color: var(--text); }
+
+  /* ── PROGRESS BAR ── */
+  #progress-section {
+    padding: 12px 20px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .prog-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 13px; color: var(--text-muted); white-space: nowrap;
+  }
+  .prog-label strong { color: var(--text); font-family: 'DM Sans', sans-serif; font-weight: 600; }
+  #global-bar-wrap {
+    flex: 1; min-width: 120px;
+    height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;
+  }
+  #global-bar {
+    height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 4px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+    width: 0%;
+  }
+  .prog-pct {
+    font-size: 12px; font-weight: 600; color: var(--accent); white-space: nowrap;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  #main { padding: 20px; }
+
+  /* year group */
+  .year-group {
+    margin-bottom: 32px;
+  }
+  .year-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px; color: var(--text-muted);
+    margin-bottom: 12px;
+    padding-left: 4px;
+    letter-spacing: -0.5px;
+  }
+  .year-label span { color: var(--hex); }
+
+  /* semester block */
+  .semester-block {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: box-shadow var(--transition);
+  }
+  .semester-block { transition: box-shadow 0.35s cubic-bezier(0.4,0,0.2,1); }
+  .semester-block:hover { box-shadow: var(--shadow-lg); }
+
+  .semester-header {
+    display: flex; align-items: center;
+    padding: 10px 16px;
+    background: var(--hemi-bg);
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+  }
+  .semester-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 14px; color: var(--text);
+    flex: 1;
+  }
+  .semester-credits {
+    font-size: 11px; color: var(--text-muted);
+    background: var(--bg); padding: 3px 8px;
+    border-radius: 20px; border: 1px solid var(--border);
+  }
+  .semester-credits .cr-done { color: var(--accent2); font-weight: 600; }
+
+  /* unified grid: 2 hemi columns, span-row items fill both */
+  .unified-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* hemi:0 cards — span both columns */
+  .span-row {
+    grid-column: 1 / -1;
+    padding: 4px 12px;
+    border-top: 1px solid var(--border);
+  }
+  .span-row .course-card {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .add-span-row {
+    padding: 4px 12px 10px 12px;
+  }
+  .add-span-row .add-course-btn { width: 100%; }
+
+  /* two-column grid inside block */
+  .hemi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .hemi-col {
+    padding: 12px;
+    border-right: 1px solid var(--border);
+  }
+  .hemi-col:last-child { border-right: none; }
+
+  .hemi-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.8px;
+    text-transform: uppercase; color: var(--text-light);
+    margin-bottom: 8px; padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* course card */
+  .course-card {
+    border-radius: var(--radius-sm);
+    padding: 7px 9px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.45s cubic-bezier(0.25,0.46,0.45,0.94),
+                border-color 0.45s cubic-bezier(0.25,0.46,0.45,0.94),
+                color 0.45s cubic-bezier(0.25,0.46,0.45,0.94),
+                transform 0.4s cubic-bezier(0.34,1.3,0.64,1),
+                box-shadow 0.4s cubic-bezier(0.25,0.46,0.45,0.94),
+                opacity 0.4s cubic-bezier(0.25,0.46,0.45,0.94),
+                filter 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
+    position: relative;
+    outline: none;
+    user-select: none;
+  }
+  .course-card:focus-visible {
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  .course-card.unlocked {
+    background: var(--unlocked);
+    border-color: var(--unlocked-border);
+    color: var(--unlocked-text);
+  }
+  .course-card.unlocked:hover { background: var(--unlocked-hover); transform: translateY(-2px) scale(1.004); box-shadow: 0 5px 18px rgba(122,159,192,0.22); }
+
+  .course-card.approved {
+    background: var(--approved);
+    border-color: var(--approved-border);
+    color: var(--approved-text);
+  }
+  .course-card.approved:hover { background: var(--approved-hover); transform: translateY(-2px) scale(1.004); box-shadow: 0 5px 18px rgba(144,184,144,0.22); }
+
+  .course-card.blocked {
+    background: var(--blocked);
+    border-color: var(--blocked-border);
+    color: var(--blocked-text);
+    cursor: default;
+  }
+
+  .course-card.planned {
+    background: var(--planned);
+    border-color: var(--planned-border);
+    color: var(--planned-text);
+  }
+  .course-card.planned:hover { transform: translateY(-2px) scale(1.004); box-shadow: 0 5px 18px rgba(208,168,112,0.18); }
+
+  /* dim mode */
+  body.dim-mode .course-card {
+    opacity: var(--dim);
+    filter: saturate(0.35) brightness(0.97);
+    /* intentionally no transition override — inherits from .course-card for smoothness */
+  }
+  body.dim-mode .course-card.highlighted-prereq {
+    opacity: 1;
+    filter: saturate(1);
+    background: var(--prereq-highlight) !important;
+    border-color: var(--prereq-border) !important;
+    color: #6a2020 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 12px rgba(212,112,112,0.2);
+  }
+  body.dim-mode .course-card.highlighted-dep {
+    opacity: 1;
+    filter: saturate(1);
+    background: var(--dependent-highlight) !important;
+    border-color: var(--dependent-border) !important;
+    color: #1a4a70 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 12px rgba(106,170,212,0.2);
+  }
+  body.dim-mode .course-card.highlighted-self {
+    opacity: 1;
+    filter: saturate(1);
+  }
+
+  .course-name {
+    font-size: 12px; font-weight: 500; line-height: 1.3;
+  }
+  .course-footer {
+    display: flex; align-items: center; gap: 4px; margin-top: 4px;
+  }
+  .credit-chip {
+    display: inline-flex; align-items: center;
+    background: rgba(255,255,255,0.5);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 20px;
+    padding: 1px 6px;
+    font-size: 10px; font-weight: 600;
+    gap: 3px; cursor: text;
+  }
+  .credit-chip input {
+    width: 22px; border: none; background: transparent;
+    font-size: 10px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+    color: inherit; text-align: center; padding: 0;
+  }
+  .credit-chip input:focus { outline: none; }
+
+  .check-icon {
+    margin-left: auto; font-size: 11px; opacity: 0.7;
+  }
+
+  /* add course btn */
+  .add-course-btn {
+    width: 100%; padding: 5px 8px;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-light);
+    font-size: 11px; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; text-align: left;
+    transition: var(--transition);
+    margin-top: 4px;
+  }
+  .add-course-btn { transition: border-color 0.35s cubic-bezier(0.25,0.46,0.45,0.94), color 0.35s cubic-bezier(0.25,0.46,0.45,0.94), background 0.35s cubic-bezier(0.25,0.46,0.45,0.94); }
+  .add-course-btn:hover {
+    border-color: var(--accent); color: var(--accent); background: rgba(122,159,192,0.06);
+  }
+
+  /* ── TOOLTIP ── */
+  #tooltip {
+    position: fixed; z-index: 999;
+    background: var(--bg-card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px 13px;
+    border-radius: var(--radius);
+    font-size: 11px; max-width: 260px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.3s cubic-bezier(0.25,0.46,0.45,0.94),
+                transform 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+    line-height: 1.6;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.09);
+  }
+  #tooltip.visible { opacity: 1; transform: translateY(0); }
+  #tooltip strong {
+    display: block; margin-bottom: 5px;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.6px; text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  #tooltip .tip-item {
+    display: flex; align-items: center; gap: 5px;
+    color: var(--text); font-size: 11px;
+  }
+  #tooltip .tip-item::before {
+    content: '·';
+    color: var(--prereq-border);
+    font-size: 16px; line-height: 1;
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(45,42,36,0.4);
+    z-index: 500;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(2px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    width: 420px; max-width: 90vw;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(16px);
+    transition: transform 0.4s cubic-bezier(0.34,1.2,0.64,1);
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px; margin-bottom: 16px; color: var(--text);
+  }
+  .modal-field { margin-bottom: 14px; }
+  .modal-field label {
+    display: block; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.5px; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 5px;
+  }
+  .modal-field input, .modal-field select, .modal-field textarea {
+    width: 100%; padding: 8px 10px;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--bg); font-family: 'DM Sans', sans-serif;
+    font-size: 13px; color: var(--text);
+    transition: border-color var(--transition);
+  }
+  .modal-field input:focus, .modal-field select:focus, .modal-field textarea:focus {
+    outline: none; border-color: var(--accent);
+  }
+  .modal-prereq-list {
+    max-height: 140px; overflow-y: auto;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 6px;
+  }
+  .modal-prereq-item {
+    display: flex; align-items: center; gap: 6px;
+    padding: 3px 4px; border-radius: 4px;
+    cursor: pointer; font-size: 12px;
+  }
+  .modal-prereq-item:hover { background: var(--hemi-bg); }
+  .modal-prereq-item input[type=checkbox] { accent-color: var(--accent); }
+
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+  .btn-primary {
+    padding: 8px 18px; border-radius: var(--radius-sm);
+    background: var(--accent); border: none; color: white;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: var(--transition);
+  }
+  .btn-primary:hover { background: #6a8fb0; }
+  .btn-secondary {
+    padding: 8px 18px; border-radius: var(--radius-sm);
+    background: transparent; border: 1px solid var(--border); color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif; font-size: 13px;
+    cursor: pointer; transition: var(--transition);
+  }
+  .btn-secondary:hover { border-color: var(--text-muted); color: var(--text); }
+
+  /* ── PANEL ── */
+  #panel-overlay {
+    position: fixed; inset: 0;
+    background: rgba(45,42,36,0.3);
+    z-index: 400;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  #panel-overlay.open { opacity: 1; pointer-events: all; }
+
+  #panel {
+    position: fixed; right: 0; top: 0; bottom: 0;
+    width: 340px; max-width: 95vw;
+    background: var(--bg-card);
+    border-left: 1px solid var(--border);
+    z-index: 401;
+    transform: translateX(100%);
+    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+    overflow-y: auto;
+    padding: 24px;
+    box-shadow: var(--shadow-lg);
+  }
+  #panel.open { transform: translateX(0); }
+
+  #panel h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px; margin-bottom: 20px; color: var(--text);
+  }
+
+  .panel-section { margin-bottom: 20px; }
+  .panel-section-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--text-muted);
+    margin-bottom: 8px; padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+  .panel-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 0; font-size: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+  .panel-row-label { color: var(--text-muted); }
+  .panel-row-val { font-weight: 600; color: var(--text); }
+  .panel-row-val.green { color: #3a8a3a; }
+  .panel-row-val.blue { color: #3a6a9a; }
+
+  .panel-sem-block {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px; margin-bottom: 8px;
+  }
+  .panel-sem-title {
+    font-size: 11px; font-weight: 600; margin-bottom: 6px; color: var(--text);
+  }
+  .panel-mini-bar {
+    height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 4px;
+  }
+  .panel-mini-bar-fill {
+    height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 2px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* ── PULSE ANIMATION ── */
+  @keyframes pulse-ring {
+    0%   { box-shadow: 0 0 0 0 rgba(122,159,192,0.55); transform: scale(1); }
+    40%  { box-shadow: 0 0 0 6px rgba(122,159,192,0.15); transform: scale(1.01); }
+    70%  { box-shadow: 0 0 0 10px rgba(122,159,192,0); transform: scale(1); }
+    100% { box-shadow: 0 0 0 0 rgba(122,159,192,0); }
+  }
+  .pulsing {
+    animation: pulse-ring 1s cubic-bezier(0.4,0,0.2,1) 3;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .hemi-grid { grid-template-columns: 1fr; }
+    .hemi-col { border-right: none; border-bottom: 1px solid var(--border); }
+    .hemi-col:last-child { border-bottom: none; }
+    #search-input { width: 140px; }
+    #search-input:focus { width: 180px; }
+  }
+
+  /* hexagonal decorative accent */
+  .hex-deco {
+    display: inline-block;
+    width: 10px; height: 10px;
+    background: var(--hex);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    margin-right: 6px;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px);
+    background: var(--text); color: #f5f0e8;
+    padding: 10px 20px; border-radius: var(--radius);
+    font-size: 12px; font-weight: 500;
+    z-index: 999; opacity: 0;
+    transition: opacity 0.35s cubic-bezier(0.4,0,0.2,1), transform 0.4s cubic-bezier(0.34,1.4,0.64,1);
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="hex-deco"></div>
+  <h1>Malla <span>QF</span> · <span id="current-year"></span></h1>
+  <div id="search-wrap">
+    <span id="search-icon">⌕</span>
+    <input type="text" id="search-input" placeholder="Buscar asignatura…" autocomplete="off">
+    <div id="search-results"></div>
+  </div>
+  <div id="filter-bar">
+    <button class="filter-chip active" data-filter="all">Todas</button>
+    <button class="filter-chip" data-filter="approved">Aprobadas</button>
+    <button class="filter-chip" data-filter="unlocked">Desbloqueadas</button>
+    <button class="filter-chip" data-filter="blocked">Bloqueadas</button>
+    <button class="filter-chip" data-filter="planned">Planeadas</button>
+  </div>
+  <div class="topbar-sep"></div>
+  <button class="top-btn" onclick="openPanel()">◫ Avance</button>
+  <button class="top-btn" onclick="saveState()">⊙ Guardar</button>
+  <button class="top-btn" onclick="loadState()">⊘ Cargar</button>
+  <button class="top-btn danger" onclick="resetState()">↺ Reset</button>
+</div>
+
+<!-- PROGRESS -->
+<div id="progress-section">
+  <span class="prog-label">Progreso global: <strong id="prog-approved">0</strong> / <strong>450</strong> créditos</span>
+  <div id="global-bar-wrap"><div id="global-bar"></div></div>
+  <span class="prog-pct" id="prog-pct">0%</span>
+</div>
+
+<!-- MAIN -->
+<div id="main"></div>
+
+<!-- TOOLTIP -->
+<div id="tooltip"></div>
+
+<!-- ADD COURSE MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <h2>╋ Agregar asignatura</h2>
+    <div class="modal-field">
+      <label>Tipo</label>
+      <select id="add-type">
+        <option value="optativa">Optativa</option>
+        <option value="electiva">Electiva</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Nombre</label>
+      <input type="text" id="add-name" placeholder="Nombre de la asignatura">
+    </div>
+    <div class="modal-field">
+      <label>Créditos</label>
+      <input type="number" id="add-credits" value="4" min="1" max="30">
+    </div>
+    <div class="modal-field">
+      <label>Prerrequisitos (opcional)</label>
+      <div class="modal-prereq-list" id="add-prereq-list"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeAddModal()">Cancelar</button>
+      <button class="btn-primary" onclick="confirmAddCourse()">Agregar</button>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div id="panel-overlay" onclick="closePanel()"></div>
+<div id="panel">
+  <h2>◫ Avance detallado</h2>
+  <div id="panel-content"></div>
+  <div style="margin-top:16px">
+    <button class="btn-secondary" style="width:100%" onclick="closePanel()">Cerrar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// Año dinámico
+document.getElementById('current-year').textContent = new Date().getFullYear();
+
+
+// ═══════════════════════════════════════════════════
+const COURSES_DATA = [
+  // S1 — completas
+  { id:'mat_a', name:'Matemática A', credits:10, semester:1, hemi:0, prereqs:[] },
+  { id:'qg1', name:'Química General I', credits:7, semester:1, hemi:0, prereqs:[] },
+  { id:'icb1', name:'Introducción a las Ciencias Biológicas I', credits:5, semester:1, hemi:0, prereqs:[] },
+  // S1 H2
+  { id:'prev', name:'Prevención de Riesgos en el Laboratorio', credits:4, semester:1, hemi:2, prereqs:[] },
+  // S2 H1
+  { id:'mat_b', name:'Matemática B', credits:6, semester:2, hemi:1, prereqs:['mat_a'] },
+  // S2 — completas
+  { id:'mat_c', name:'Matemática C', credits:8, semester:2, hemi:0, prereqs:['mat_b'] },
+  { id:'qg2', name:'Química General II', credits:8, semester:2, hemi:0, prereqs:['qg1','prev'] },
+  { id:'icb2', name:'Introducción a las Ciencias Biológicas II', credits:5, semester:2, hemi:0, prereqs:['icb1','prev'] },
+  { id:'fis101', name:'Física 101', credits:7, semester:2, hemi:0, prereqs:['mat_a'] },
+  // S3 — completas
+  { id:'org101', name:'Química Orgánica 101', credits:11, semester:3, hemi:0, prereqs:['qg2'] },
+  { id:'qan1', name:'Química Analítica 1', credits:10, semester:3, hemi:0, prereqs:['qg2'] },
+  { id:'qinorg_t', name:'Química Inorgánica (T)', credits:6, semester:3, hemi:0, prereqs:['qg2'] },
+  { id:'qinorg_l', name:'Laboratorio de Química Inorgánica', credits:5, semester:3, hemi:0, prereqs:['qg2'] },
+  { id:'fis102', name:'Física 102', credits:7, semester:3, hemi:0, prereqs:['fis101'] },
+  { id:'fisiol', name:'Fisiología', credits:7, semester:3, hemi:0, prereqs:['icb2'] },
+  // S4 H1
+  { id:'fis003l', name:'Física 003 (L)', credits:4, semester:4, hemi:1, prereqs:['fis102'] },
+  { id:'intro_med', name:'Introducción al Medicamento', credits:2, semester:4, hemi:1, prereqs:[] },
+  // S4 — completas
+  { id:'org102', name:'Química Orgánica 102', credits:6, semester:4, hemi:0, prereqs:['org101'] },
+  { id:'qan2', name:'Química Analítica 2', credits:7, semester:4, hemi:0, prereqs:['qan1'] },
+  { id:'fq102', name:'Fisicoquímica 102', credits:13, semester:4, hemi:0, prereqs:['mat_c','qan1'] },
+  { id:'fisiop', name:'Fisiopatología', credits:7, semester:4, hemi:0, prereqs:['fisiol'] },
+  // S5 H1
+  { id:'org104', name:'Química Orgánica 104', credits:4, semester:5, hemi:1, prereqs:['org102'] },
+  // S5 — completas
+  { id:'org103', name:'Química Orgánica 103 (L)', credits:5, semester:5, hemi:0, prereqs:['org101','qan1'] },
+  { id:'qan3', name:'Química Analítica 3', credits:10, semester:5, hemi:0, prereqs:['qan2'] },
+  { id:'fq103', name:'Fisicoquímica 103', credits:12, semester:5, hemi:0, prereqs:['fq102'] },
+  { id:'bioq', name:'Bioquímica Opción III', credits:15, semester:5, hemi:0, prereqs:['icb1','fq102','org102','qan2'] },
+  // S6 H1
+  { id:'botanica', name:'Botánica', credits:4, semester:6, hemi:1, prereqs:['icb2','org103','org104','qan3'] },
+  { id:'taller', name:'Taller de Integración Cs. Biológicas y Biomédicas', credits:2, semester:6, hemi:1, prereqs:['fisiol','fisiop'] },
+  // S6 H2
+  { id:'inmuno1', name:'Inmunología 1', credits:5, semester:6, hemi:2, prereqs:['icb2','bioq'] },
+  { id:'sist_gest', name:'Sistemas de Gestión', credits:4, semester:6, hemi:2, prereqs:[] },
+  // S6 — completas
+  { id:'farmacogn', name:'Farmacognosia', credits:9, semester:6, hemi:0, prereqs:['org103','org104','qan3','botanica'] },
+  { id:'microbio', name:'Microbiología General (T)', credits:6, semester:6, hemi:0, prereqs:['icb2','bioq'] },
+  { id:'lab_micro', name:'Laboratorio de Análisis Microbiológico', credits:6, semester:6, hemi:0, prereqs:['icb2','bioq'] },
+  { id:'farmacocin', name:'Farmacocinética y Biofarmacia', credits:8, semester:6, hemi:0, prereqs:['fisiol','mat_c'] },
+  // S7 H2
+  { id:'broma', name:'Bromatología y Nutrición', credits:4, semester:7, hemi:2, prereqs:['bioq','microbio'] },
+  // S7 — completas
+  { id:'qfarm101', name:'Química Farmacéutica 101 – Teórico', credits:8, semester:7, hemi:0, prereqs:['org102','org103','org104','qan3','fq102','fq103','farmacogn','bioq'] },
+  { id:'qfarm102', name:'Química Farmacéutica 102 – Práctico', credits:6, semester:7, hemi:0, prereqs:['org102','org103','org104','qan3','fq102','fq103','farmacogn','bioq'] },
+  { id:'farmacol', name:'Farmacología', credits:10, semester:7, hemi:0, prereqs:['org102','org103','org104','fisiol','taller','bioq'] },
+  { id:'farmacotec1', name:'Farmacotecnia 1', credits:10, semester:7, hemi:0, prereqs:['farmacocin','farmacogn','botanica','microbio','qan3','qinorg_t','fq102','intro_med'] },
+  { id:'inmuno2', name:'Inmunología 2', credits:7, semester:7, hemi:0, prereqs:['inmuno1'] },
+  // S8 H1
+  { id:'toxicol', name:'Toxicología Fundamental', credits:4, semester:8, hemi:1, prereqs:['qan3','bioq'] },
+  // S8 — completas
+  { id:'ctrl_cal', name:'Control de Calidad de Medicamentos I', credits:12, semester:8, hemi:0, prereqs:['microbio','qfarm101','qfarm102','farmacotec1'] },
+  { id:'farmacoterapia', name:'Farmacoterapia', credits:8, semester:8, hemi:0, prereqs:['fisiop','farmacol','farmacocin'] },
+  { id:'farmacotec2', name:'Farmacotecnia 2', credits:10, semester:8, hemi:0, prereqs:['farmacotec1','ctrl_cal'] },
+  // S9 H2
+  { id:'gest_emp', name:'Gestión de Empresas', credits:4, semester:9, hemi:2, prereqs:[] },
+  // S9 — completas
+  { id:'legis', name:'Legislación y Deontología', credits:6, semester:9, hemi:0, prereqs:['farmacotec2','farmacoterapia'] },
+  // S10 — completa
+  { id:'practicantado', name:'Practicantado', credits:55, semester:10, hemi:0, prereqs:[] },
+];
+
+const SEMESTER_NAMES = {
+  1:'Primer Semestre', 2:'Segundo Semestre', 3:'Tercer Semestre',
+  4:'Cuarto Semestre', 5:'Quinto Semestre', 6:'Sexto Semestre',
+  7:'Séptimo Semestre', 8:'Octavo Semestre', 9:'Noveno Semestre',
+  10:'Décimo Semestre'
+};
+
+const YEAR_LABELS = {
+  1:'Primer Año', 2:'Segundo Año', 3:'Tercer Año',
+  4:'Cuarto Año', 5:'Quinto Año'
+};
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let courses = {};   // id -> { ...data, state:'blocked'|'unlocked'|'approved'|'planned', credits }
+let extraCourses = []; // dynamically added
+let addModalTarget = null; // { semester, hemi }
+let activeFilter = 'all';
+
+function initCourses() {
+  courses = {};
+  COURSES_DATA.forEach(c => {
+    courses[c.id] = { ...c, state: c.prereqs.length === 0 ? 'unlocked' : 'blocked' };
+  });
+  recomputeStates();
+}
+
+function recomputeStates() {
+  const approvedSet = new Set(Object.values(courses).filter(c=>c.state==='approved').map(c=>c.id));
+  // also extra
+  extraCourses.forEach(c => { if(c.state==='approved') approvedSet.add(c.id); });
+
+  Object.values(courses).forEach(c => {
+    if(c.state === 'approved') return;
+    const allMet = c.prereqs.every(p => approvedSet.has(p));
+    if(allMet && c.state === 'blocked') c.state = 'unlocked';
+    if(!allMet && c.state !== 'approved') c.state = 'blocked';
+  });
+  extraCourses.forEach(c => {
+    if(c.state === 'approved') return;
+    const allMet = c.prereqs.every(p => approvedSet.has(p));
+    if(allMet && c.state === 'blocked') c.state = 'unlocked';
+    if(!allMet && c.state !== 'approved') c.state = 'blocked';
+  });
+}
+
+function toggleApproved(id) {
+  const c = courses[id] || extraCourses.find(x=>x.id===id);
+  if(!c) return;
+  if(c.state === 'approved') {
+    c.state = c.prereqs.every(p => {
+      const pc = courses[p] || extraCourses.find(x=>x.id===p);
+      return pc && pc.state === 'approved';
+    }) ? 'unlocked' : 'blocked';
+  } else if(c.state === 'unlocked' || c.state === 'planned') {
+    c.state = 'approved';
+  }
+  recomputeStates();
+  render();
+  updateProgress();
+  autoSave();
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════
+function allCoursesFlat() {
+  return [...Object.values(courses), ...extraCourses];
+}
+
+function render() {
+  const main = document.getElementById('main');
+  // Group by year (2 semesters per year)
+  const semsBySem = {};
+  allCoursesFlat().forEach(c => {
+    if(!semsBySem[c.semester]) semsBySem[c.semester] = [];
+    semsBySem[c.semester].push(c);
+  });
+
+  let html = '';
+  for(let year = 1; year <= 5; year++) {
+    const s1 = year*2-1, s2 = year*2;
+    html += `<div class="year-group">`;
+    html += `<div class="year-label"><span class="hex-deco"></span>${YEAR_LABELS[year]}</div>`;
+    for(const s of [s1, s2]) {
+      if(!semsBySem[s] && s > 10) continue;
+      html += renderSemester(s, semsBySem[s] || []);
+    }
+    html += `</div>`;
+  }
+  main.innerHTML = html;
+  attachCardEvents();
+}
+
+function renderSemester(sem, semCourses) {
+  const h0 = semCourses.filter(c=>c.hemi===0);
+  const h1 = semCourses.filter(c=>c.hemi===1);
+  const h2 = semCourses.filter(c=>c.hemi===2);
+  const maxCr = 50;
+  const doneCr = semCourses.filter(c=>c.state==='approved').reduce((a,c)=>a+c.credits,0);
+
+  const h0Rows = h0.map(c => `<div class="span-row">${renderCard(c)}</div>`).join('');
+  const h1Cards = renderCourseList(h1);
+  const h2Cards = renderCourseList(h2);
+
+  return `
+  <div class="semester-block" data-sem="${sem}">
+    <div class="semester-header">
+      <span class="semester-title"><span class="hex-deco"></span>${SEMESTER_NAMES[sem]}</span>
+      <span class="semester-credits"><span class="cr-done">${doneCr}</span> / ${maxCr} cr</span>
+    </div>
+    <div class="unified-grid">
+      <div class="hemi-col">
+        <div class="hemi-label">1er Hemisemestre</div>
+        ${h1Cards}
+        <button class="add-course-btn" onclick="openAddModal(${sem},1)">╋ Agregar asignatura</button>
+      </div>
+      <div class="hemi-col">
+        <div class="hemi-label">2do Hemisemestre</div>
+        ${h2Cards}
+        <button class="add-course-btn" onclick="openAddModal(${sem},2)">╋ Agregar asignatura</button>
+      </div>
+      ${h0Rows}
+      ${h0.length ? `<div class="span-row add-span-row"><button class="add-course-btn" onclick="openAddModal(${sem},0)">╋ Agregar asignatura (semestre completo)</button></div>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderCourseList(list) {
+  return list.map(c => renderCard(c)).join('');
+}
+
+function renderCard(c) {
+  // apply filter
+  if(activeFilter !== 'all' && c.state !== activeFilter) {
+    return `<div class="course-card blocked" style="display:none" data-id="${c.id}"></div>`;
+  }
+  const isCustom = !!c.custom;
+  const typeLabel = c.custom ? `<span style="font-size:9px;opacity:0.6;margin-left:4px">[${c.custom}]</span>` : '';
+  const check = c.state === 'approved' ? '<span class="check-icon">✓</span>' : '';
+  return `
+  <div class="course-card ${c.state}" data-id="${c.id}"
+    tabindex="0" role="button"
+    aria-label="${c.name} — ${c.state}"
+    onkeydown="if(event.key==='Enter')toggleApproved('${c.id}')"
+    onmouseenter="onHover('${c.id}',event)"
+    onmouseleave="onLeave('${c.id}')"
+    onclick="onCardClick(event,'${c.id}')">
+    <div class="course-name">${c.name}${typeLabel}</div>
+    <div class="course-footer">
+      <span class="credit-chip" title="Créditos (editable)">
+        ◈ <input type="number" value="${c.credits}" min="1" max="60"
+          onclick="event.stopPropagation()"
+          onchange="updateCredits('${c.id}',this.value)"
+          style="width:${String(c.credits).length * 8 + 14}px">
+      </span>
+      ${check}
+    </div>
+  </div>`;
+}
+
+function attachCardEvents() {
+  // tooltip for blocked
+  document.querySelectorAll('.course-card.blocked').forEach(el => {
+    let timer;
+    el.addEventListener('mouseenter', e => {
+      timer = setTimeout(() => showTooltip(el.dataset.id, e), 500);
+    });
+    el.addEventListener('mouseleave', () => {
+      clearTimeout(timer);
+      hideTooltip();
+    });
+    el.addEventListener('touchstart', e => {
+      timer = setTimeout(() => showTooltip(el.dataset.id, e.touches[0]), 500);
+    }, {passive:true});
+    el.addEventListener('touchend', () => {
+      clearTimeout(timer);
+    });
+  });
+}
+
+function onCardClick(e, id) {
+  const c = courses[id] || extraCourses.find(x=>x.id===id);
+  if(!c) return;
+  if(c.state === 'blocked') return;
+  toggleApproved(id);
+}
+
+// ═══════════════════════════════════════════════════
+// HOVER / DIM
+// ═══════════════════════════════════════════════════
+function getAllPrereqs(id, visited = new Set()) {
+  if(visited.has(id)) return visited;
+  visited.add(id);
+  const c = courses[id] || extraCourses.find(x=>x.id===id);
+  if(!c) return visited;
+  c.prereqs.forEach(p => getAllPrereqs(p, visited));
+  return visited;
+}
+
+function getAllDependents(id) {
+  const deps = new Set();
+  allCoursesFlat().forEach(c => {
+    if(c.prereqs.includes(id)) deps.add(c.id);
+  });
+  return deps;
+}
+
+function onHover(id) {
+  document.body.classList.add('dim-mode');
+  const prereqs = getAllPrereqs(id);
+  prereqs.delete(id);
+  const deps = getAllDependents(id);
+  document.querySelectorAll('.course-card').forEach(el => {
+    const eid = el.dataset.id;
+    el.classList.remove('highlighted-prereq','highlighted-dep','highlighted-self');
+    if(eid === id) el.classList.add('highlighted-self');
+    else if(prereqs.has(eid)) el.classList.add('highlighted-prereq');
+    else if(deps.has(eid)) el.classList.add('highlighted-dep');
+  });
+}
+
+function onLeave() {
+  document.body.classList.remove('dim-mode');
+  document.querySelectorAll('.course-card').forEach(el => {
+    el.classList.remove('highlighted-prereq','highlighted-dep','highlighted-self');
+  });
+  hideTooltip();
+}
+
+// ═══════════════════════════════════════════════════
+// TOOLTIP
+// ═══════════════════════════════════════════════════
+function showTooltip(id, e) {
+  const c = courses[id] || extraCourses.find(x=>x.id===id);
+  if(!c || c.state !== 'blocked') return;
+  const missing = c.prereqs.filter(p => {
+    const pc = courses[p] || extraCourses.find(x=>x.id===p);
+    return !pc || pc.state !== 'approved';
+  });
+  const names = missing.map(p => {
+    const pc = courses[p] || extraCourses.find(x=>x.id===p);
+    return pc ? pc.name : p;
+  });
+  const tip = document.getElementById('tooltip');
+  tip.innerHTML = `<strong>Requiere aprobar:</strong>${names.map(n=>`<div class="tip-item">${n}</div>`).join('')}`;
+  tip.style.left = (e.clientX + 12) + 'px';
+  tip.style.top = (e.clientY + 12) + 'px';
+  tip.classList.add('visible');
+}
+
+function hideTooltip() {
+  document.getElementById('tooltip').classList.remove('visible');
+}
+
+document.addEventListener('mousemove', e => {
+  const tip = document.getElementById('tooltip');
+  if(tip.classList.contains('visible')) {
+    tip.style.left = (e.clientX + 12) + 'px';
+    tip.style.top = (e.clientY + 12) + 'px';
+  }
+});
+
+// ═══════════════════════════════════════════════════
+// CREDITS UPDATE
+// ═══════════════════════════════════════════════════
+function updateCredits(id, val) {
+  const c = courses[id] || extraCourses.find(x=>x.id===id);
+  if(c) { c.credits = parseInt(val) || c.credits; }
+  updateProgress();
+  autoSave();
+}
+
+// ═══════════════════════════════════════════════════
+// PROGRESS
+// ═══════════════════════════════════════════════════
+function updateProgress() {
+  const all = allCoursesFlat();
+  const approved = all.filter(c=>c.state==='approved').reduce((a,c)=>a+c.credits,0);
+  const total = 450;
+  const pct = Math.min(100, Math.round(approved/total*100));
+  document.getElementById('prog-approved').textContent = approved;
+  document.getElementById('global-bar').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+}
+
+// ═══════════════════════════════════════════════════
+// ADD COURSE MODAL
+// ═══════════════════════════════════════════════════
+function openAddModal(sem, hemi) {
+  addModalTarget = { semester: sem, hemi };
+  // populate prereq list
+  const list = document.getElementById('add-prereq-list');
+  list.innerHTML = allCoursesFlat().map(c =>
+    `<label class="modal-prereq-item">
+      <input type="checkbox" value="${c.id}"> ${c.name}
+    </label>`
+  ).join('');
+  document.getElementById('add-name').value = '';
+  document.getElementById('add-credits').value = 4;
+  document.getElementById('add-modal').classList.add('open');
+}
+
+function closeAddModal() {
+  document.getElementById('add-modal').classList.remove('open');
+  addModalTarget = null;
+}
+
+function confirmAddCourse() {
+  const name = document.getElementById('add-name').value.trim();
+  if(!name) { showToast('Ingresa un nombre'); return; }
+  const credits = parseInt(document.getElementById('add-credits').value) || 4;
+  const type = document.getElementById('add-type').value;
+  const prereqs = [...document.querySelectorAll('#add-prereq-list input:checked')].map(i=>i.value);
+  const id = 'custom_' + Date.now();
+  const c = {
+    id, name, credits,
+    semester: addModalTarget.semester,
+    hemi: addModalTarget.hemi,
+    prereqs,
+    custom: type,
+    state: prereqs.every(p => {
+      const pc = courses[p] || extraCourses.find(x=>x.id===p);
+      return pc && pc.state==='approved';
+    }) ? 'unlocked' : (prereqs.length === 0 ? 'unlocked' : 'blocked')
+  };
+  extraCourses.push(c);
+  closeAddModal();
+  render();
+  updateProgress();
+  autoSave();
+  showToast(`"${name}" agregada`);
+}
+
+// ═══════════════════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════════════════
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  if(!q) { searchResults.classList.remove('open'); return; }
+  const matches = allCoursesFlat().filter(c => c.name.toLowerCase().includes(q)).slice(0,8);
+  if(!matches.length) { searchResults.classList.remove('open'); return; }
+  searchResults.innerHTML = matches.map(c => `
+    <div class="search-item" onclick="jumpTo('${c.id}')">
+      <div class="search-item-name">${c.name}
+        <span class="search-item-state state-${c.state}">${stateLabel(c.state)}</span>
+      </div>
+      <div class="search-item-meta">
+        ${c.credits} créditos · S${c.semester}
+        ${c.prereqs.length ? '· Req: ' + c.prereqs.map(p => {
+          const pc = courses[p]; return pc ? pc.name : p;
+        }).join(', ') : ''}
+      </div>
+    </div>`).join('');
+  searchResults.classList.add('open');
+});
+
+document.addEventListener('click', e => {
+  if(!e.target.closest('#search-wrap')) {
+    searchResults.classList.remove('open');
+  }
+});
+
+function stateLabel(s) {
+  return { approved:'Aprobada', unlocked:'Desbloqueada', blocked:'Bloqueada', planned:'Planeada' }[s] || s;
+}
+
+function jumpTo(id) {
+  searchResults.classList.remove('open');
+  searchInput.value = '';
+  const el = document.querySelector(`.course-card[data-id="${id}"]`);
+  if(!el) return;
+  el.scrollIntoView({ behavior:'smooth', block:'center' });
+  setTimeout(() => {
+    el.classList.add('pulsing');
+    setTimeout(() => el.classList.remove('pulsing'), 2500);
+  }, 400);
+}
+
+// ═══════════════════════════════════════════════════
+// FILTER
+// ═══════════════════════════════════════════════════
+document.querySelectorAll('.filter-chip').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.filter;
+    render();
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// PANEL
+// ═══════════════════════════════════════════════════
+function openPanel() {
+  updatePanelContent();
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('panel-overlay').classList.add('open');
+}
+
+function closePanel() {
+  document.getElementById('panel').classList.remove('open');
+  document.getElementById('panel-overlay').classList.remove('open');
+}
+
+function updatePanelContent() {
+  const all = allCoursesFlat();
+  const approved = all.filter(c=>c.state==='approved');
+  const unlocked = all.filter(c=>c.state==='unlocked');
+  const blocked = all.filter(c=>c.state==='blocked');
+  const planned = all.filter(c=>c.state==='planned');
+
+  const crApproved = approved.reduce((a,c)=>a+c.credits,0);
+  const crPlanned = [...approved,...planned].reduce((a,c)=>a+c.credits,0);
+
+  let html = `
+  <div class="panel-section">
+    <div class="panel-section-title">Global</div>
+    <div class="panel-row"><span class="panel-row-label">Total asignaturas</span><span class="panel-row-val">${all.length}</span></div>
+    <div class="panel-row"><span class="panel-row-label">Aprobadas</span><span class="panel-row-val green">${approved.length}</span></div>
+    <div class="panel-row"><span class="panel-row-label">Desbloqueadas</span><span class="panel-row-val blue">${unlocked.length}</span></div>
+    <div class="panel-row"><span class="panel-row-label">Bloqueadas</span><span class="panel-row-val">${blocked.length}</span></div>
+    <div class="panel-row"><span class="panel-row-label">Créditos aprobados</span><span class="panel-row-val green">${crApproved} / 450</span></div>
+    <div class="panel-row"><span class="panel-row-label">Créditos planeados</span><span class="panel-row-val">${crPlanned}</span></div>
+  </div>
+  <div class="panel-section">
+    <div class="panel-section-title">Por semestre</div>`;
+
+  for(let s = 1; s <= 10; s++) {
+    const sc = all.filter(c=>c.semester===s);
+    if(!sc.length) continue;
+    const sApproved = sc.filter(c=>c.state==='approved');
+    const sCr = sApproved.reduce((a,c)=>a+c.credits,0);
+    const sTotalCr = sc.reduce((a,c)=>a+c.credits,0);
+    const pct = sTotalCr > 0 ? Math.round(sCr/sTotalCr*100) : 0;
+    html += `
+    <div class="panel-sem-block">
+      <div class="panel-sem-title">${SEMESTER_NAMES[s]}</div>
+      <div class="panel-row" style="border:none;padding:2px 0">
+        <span class="panel-row-label">${sApproved.length}/${sc.length} materias</span>
+        <span class="panel-row-val">${sCr}/${sTotalCr} cr</span>
+      </div>
+      <div class="panel-mini-bar">
+        <div class="panel-mini-bar-fill" style="width:${pct}%"></div>
+      </div>
+    </div>`;
+  }
+
+  html += `</div>`;
+  document.getElementById('panel-content').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════
+// SAVE / LOAD / RESET
+// ═══════════════════════════════════════════════════
+function getStateSnapshot() {
+  const snap = {};
+  allCoursesFlat().forEach(c => { snap[c.id] = { state: c.state, credits: c.credits }; });
+  return { courses: snap, extra: extraCourses };
+}
+
+function applySnapshot(snap) {
+  if(!snap) return;
+  if(snap.extra) {
+    extraCourses = snap.extra;
+  }
+  Object.entries(snap.courses || {}).forEach(([id, data]) => {
+    const c = courses[id] || extraCourses.find(x=>x.id===id);
+    if(c) { c.state = data.state; c.credits = data.credits; }
+  });
+  recomputeStates();
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('malla_qf_2015', JSON.stringify(getStateSnapshot()));
+    showToast('✓ Guardado correctamente');
+  } catch(e) { showToast('Error al guardar'); }
+}
+
+function autoSave() {
+  try { localStorage.setItem('malla_qf_2015', JSON.stringify(getStateSnapshot())); } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('malla_qf_2015');
+    if(!raw) { showToast('No hay estado guardado'); return; }
+    initCourses();
+    applySnapshot(JSON.parse(raw));
+    render(); updateProgress();
+    showToast('✓ Estado restaurado');
+  } catch(e) { showToast('Error al cargar'); }
+}
+
+function resetState() {
+  if(!confirm('¿Reiniciar toda la malla? Se perderá el progreso actual.')) return;
+  localStorage.removeItem('malla_qf_2015');
+  extraCourses = [];
+  initCourses();
+  render(); updateProgress();
+  showToast('Malla reiniciada');
+}
+
+// ═══════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+initCourses();
+
+// try loading saved state
+try {
+  const raw = localStorage.getItem('malla_qf_2015');
+  if(raw) applySnapshot(JSON.parse(raw));
+} catch(e) {}
+
+render();
+updateProgress();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(r => console.log('SW registrado:', r.scope))
+      .catch(e => console.log('SW error:', e));
+  });
+}
+</script>
+</body>
+</html>
